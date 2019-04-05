@@ -31,7 +31,7 @@ function register(req, res) {
   Users.add(user)
     .then(save => {
       const token = generateToken(user);
-      res.status(201).json(token);
+      res.status(201).json({ id: user.id, token });
     })
     .catch(error => {
       res.status(500).json(error);
@@ -39,7 +39,21 @@ function register(req, res) {
 }
 
 function login(req, res) {
-  // implement user login
+  let { username, password } = req.body;
+
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        const token = generateToken(user);
+        res.status(200).json({ message: `Hay Yo you in ${username}`, token });
+      } else {
+        res.status(401).json({ message: 'Sorry no habla ingles ' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
 }
 
 function getJokes(req, res) {
